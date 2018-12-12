@@ -27,8 +27,17 @@ class LineStream extends Readable {
                         reject(err);
                     } else {
                         if (position < fileSize) {
-                            const text = buffer.toString('utf8');
-                            const lines = text.split(/[\r\n]+/g);
+                            const currentText = buffer.toString('utf8');
+                            const previousText = linesBuffer.pop();
+                            let newText = null;
+                            if (previousText) {
+                                newText = previousText + currentText;
+                            } else {
+                                newText = currentText;
+                            }
+
+                            const lines = newText.split(/[\r\n]+/g);
+
                             for (const line of lines) {
                                 linesBuffer.push(line);
                             }
