@@ -1,14 +1,21 @@
 {
   "name": "streaming-line-reader",
   "version": "1.0.0",
-  "description": "A readable stream that gives data line by line from a file",
+  "description": "```javascript",
   "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "mocha": "^5.2.0"
+  },
   "scripts": {
     "test": "mocha"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/muqsith/read-line-stream.git"
+    "url": "git+https://github.com/muqsith/streaming-line-reader.git"
   },
   "keywords": [
     "readline",
@@ -17,10 +24,7 @@
   "author": "muqsith",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/muqsith/read-line-stream/issues"
+    "url": "https://github.com/muqsith/streaming-line-reader/issues"
   },
-  "homepage": "https://github.com/muqsith/read-line-stream#readme",
-  "devDependencies": {
-    "mocha": "^5.2.0"
-  }
+  "homepage": "https://github.com/muqsith/streaming-line-reader#readme"
 }
