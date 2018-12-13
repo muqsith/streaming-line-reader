@@ -6,6 +6,7 @@ class LineStream extends Readable {
     constructor(filePath, options) {
         super(options);
         this.filePath = filePath;
+        this.linesBuffer = [];
     }
 
     async mInit() {
@@ -14,8 +15,7 @@ class LineStream extends Readable {
         const fileSize = stat.size;
         let chunkSize = 16 * 1024;
         let position = 0;
-
-        const linesBuffer = [];
+        let previousText = '';
 
         this.reader = () => {
             return new Promise((resolve, reject) => {
@@ -28,7 +28,6 @@ class LineStream extends Readable {
                     } else {
                         if (position < fileSize) {
                             const currentText = buffer.toString('utf8');
-                            const previousText = linesBuffer.pop();
                             let newText = null;
                             if (previousText) {
                                 newText = previousText + currentText;
@@ -38,21 +37,32 @@ class LineStream extends Readable {
 
                             const lines = newText.split(/[\r\n]+/g);
 
-                            for (const line of lines) {
-                                linesBuffer.push(line);
+                            for (let i = 0; i < (lines.length - 1); i += 1) {
+                                this.linesBuffer.push(lines[i]);
                             }
                             position += bytesRead;
-                        }
-                        if (linesBuffer.length) {
-                            resolve(linesBuffer.shift() + '\n');
+                            previousText = lines[lines.length - 1];
+                            resolve(true);
+                        } else if (previousText) {
+                            // push the last line
+                            this.linesBuffer.push(previousText);
+                            resolve(false);
                         } else {
-                            resolve(null);
+                            resolve(false);
                         }
                     }
                 });
             })
         };
         return this;
+    }
+
+    mGetLine() {
+        if (this.linesBuffer.length) {
+            return this.linesBuffer.shift() + '\n';
+        } else {
+            return null;
+        }
     }
 
     mGetFd(filePath) {
@@ -81,14 +91,28 @@ class LineStream extends Readable {
         return new Promise(promiseHandler);
     }
 
-    _read(size) {
-        this.reader()
-        .then((data) => {
-            this.push(data);
-        })
-        .catch((err) => {
-            throw err;
+    mReadData() {
+        return new Promise((resolve, reject) => {
+            this.reader()
+            .then((result) => {
+                if (!this.linesBuffer.length && result) {
+                    return this.mReadData().then(resolve).catch(reject);
+                } else {
+                    resolve();
+                }
+            })
         });
+    }
+
+    _read(size) {
+        if (this.linesBuffer.length) {
+            this.push(this.mGetLine());
+        } else {
+            this.mReadData()
+            .then(() => {
+                this.push(this.mGetLine());
+            });
+        }
     }
 
 }
