@@ -1,4 +1,4 @@
-## read-line-stream
+## streaming-line-reader
 
 ```javascript
 
