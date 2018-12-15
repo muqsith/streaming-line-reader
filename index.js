@@ -46,6 +46,7 @@ class LineStream extends Readable {
                         } else if (previousText) {
                             // push the last line
                             this.linesBuffer.push(previousText);
+                            previousText = undefined;
                             resolve(false);
                         } else {
                             resolve(false);
