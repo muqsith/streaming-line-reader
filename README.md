@@ -2,6 +2,8 @@
 
 ```javascript
 
+    const getReadLineStream = require('streaming-line-reader');
+
     const inputFile = '/sample/input/file.txt';
     const outputFile = '/sample/output/file.txt';
     const readLineStream = await getReadLineStream(inputFile);
