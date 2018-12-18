@@ -1,5 +1,8 @@
 ## streaming-line-reader
 
+It will stream lines, so you can wait and write to any source by piping it to output stream (Writable stream). While you wait it doesn't overwhelm your system memory, this is the benefit we get when we use NodeJS Streams.
+Process huge files with low memory footprint.
+
 ```javascript
 
     const getReadLineStream = require('streaming-line-reader');
