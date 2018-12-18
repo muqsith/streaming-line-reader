@@ -47,9 +47,22 @@ class LineStream extends Readable {
                             // push the last line
                             this.linesBuffer.push(previousText);
                             previousText = undefined;
-                            resolve(false);
+                            fs.close(fd, (err) => {
+                                if (err) {
+                                    reject(err);
+                                } else {
+                                    resolve(false);
+                                }
+                            });
                         } else {
                             resolve(false);
+                            fs.close(fd, (err) => {
+                                if (err) {
+                                    reject(err);
+                                } else {
+                                    resolve(false);
+                                }
+                            });
                         }
                     }
                 });
