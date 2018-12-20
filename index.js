@@ -43,19 +43,12 @@ class LineStream extends Readable {
                             position += bytesRead;
                             previousText = lines[lines.length - 1];
                             resolve(true);
-                        } else if (previousText) {
-                            // push the last line
-                            this.linesBuffer.push(previousText);
-                            previousText = undefined;
-                            fs.close(fd, (err) => {
-                                if (err) {
-                                    reject(err);
-                                } else {
-                                    resolve(false);
-                                }
-                            });
                         } else {
-                            resolve(false);
+                            if (previousText) {
+                                // push the last line
+                                this.linesBuffer.push(previousText);
+                                previousText = undefined;
+                            }
                             fs.close(fd, (err) => {
                                 if (err) {
                                     reject(err);
