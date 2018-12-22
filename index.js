@@ -16,49 +16,55 @@ class LineStream extends Readable {
         let chunkSize = 16 * 1024;
         let position = 0;
         let previousText = '';
+        let isFileClose = false;
 
         this.reader = () => {
             return new Promise((resolve, reject) => {
                 if ((fileSize - position) < chunkSize) {
                     chunkSize = fileSize - position;
                 }
-                fs.read(fd, Buffer.alloc(chunkSize), 0, chunkSize, position, (err, bytesRead, buffer) => {
-                    if (err) {
-                        reject(err);
-                    } else {
-                        if (position < fileSize) {
-                            const currentText = buffer.toString('utf8');
-                            let newText = null;
-                            if (previousText) {
-                                newText = previousText + currentText;
-                            } else {
-                                newText = currentText;
-                            }
-
-                            const lines = newText.split(/[\r\n]+/g);
-
-                            for (let i = 0; i < (lines.length - 1); i += 1) {
-                                this.linesBuffer.push(lines[i]);
-                            }
-                            position += bytesRead;
-                            previousText = lines[lines.length - 1];
-                            resolve(true);
+                if (!isFileClose) {
+                    fs.read(fd, Buffer.alloc(chunkSize), 0, chunkSize, position, (err, bytesRead, buffer) => {
+                        if (err) {
+                            reject(err);
                         } else {
-                            if (previousText) {
-                                // push the last line
-                                this.linesBuffer.push(previousText);
-                                previousText = undefined;
-                            }
-                            fs.close(fd, (err) => {
-                                if (err) {
-                                    reject(err);
+                            if (position < fileSize) {
+                                const currentText = buffer.toString('utf8');
+                                let newText = null;
+                                if (previousText) {
+                                    newText = previousText + currentText;
                                 } else {
-                                    resolve(false);
+                                    newText = currentText;
                                 }
-                            });
+
+                                const lines = newText.split(/[\r\n]+/g);
+
+                                for (let i = 0; i < (lines.length - 1); i += 1) {
+                                    this.linesBuffer.push(lines[i]);
+                                }
+                                position += bytesRead;
+                                previousText = lines[lines.length - 1];
+                                resolve(true);
+                            } else {
+                                if (previousText) {
+                                    // push the last line
+                                    this.linesBuffer.push(previousText);
+                                    previousText = undefined;
+                                }
+                                fs.close(fd, (err) => {
+                                    if (err) {
+                                        reject(err);
+                                    } else {
+                                        isFileClose = true;
+                                        resolve(false);
+                                    }
+                                });
+                            }
                         }
-                    }
-                });
+                    });
+                } else {
+                    resolve(false);
+                }
             })
         };
         return this;

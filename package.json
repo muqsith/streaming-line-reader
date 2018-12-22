@@ -1,6 +1,6 @@
 {
   "name": "streaming-line-reader",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "It will stream lines, so you can wait and write to any source by piping it to output stream (Writable stream). While you wait it doesn't overwhelm your system memory, this is the benefit we get when we use NodeJS Streams. Process huge files with low memory footprint.",
   "main": "index.js",
   "directories": {
